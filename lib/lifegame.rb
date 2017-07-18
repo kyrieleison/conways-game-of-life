@@ -1,5 +1,6 @@
 class Lifegame
   autoload :Board, 'board.rb'
+  autoload :Cell, 'cell.rb'
 
   def initialize(width, height)
     @width = width

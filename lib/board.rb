@@ -1,3 +1,5 @@
+require 'cell'
+
 class Board
   attr_reader :width, :height, :cells
 
@@ -10,7 +12,7 @@ class Board
   def render
     cells.each_with_index do |h, i|
       h.each_with_index do |w, j|
-        if live?(cells[i][j])
+        if cells[i][j].live?
           print "+"
         else
           print " "
@@ -21,30 +23,28 @@ class Board
   end
 
   def update
-    next_cells = Array.new(width).map { Array.new(height) }
     cells.each_with_index do |h, i|
       h.each_with_index do |w, j|
         count = alive_surrounding_cells_count(i, j)
-        if live?(cells[i][j])
+        if cells[i][j].live?
           case count
           when 0..1
-            next_cells[i][j] = 0
+            cells[i][j].dead!
           when 2..3
-            next_cells[i][j] = 1
+            cells[i][j].live!
           when 4..8
-            next_cells[i][j] = 0
+            cells[i][j].dead!
           end
         else
           case count
           when 3
-            next_cells[i][j] = 1
+            cells[i][j].live!
           else
-            next_cells[i][j] = 0
+            cells[i][j].dead!
           end
         end
       end
     end
-    @cells = next_cells
   end
 
   private
@@ -53,7 +53,7 @@ class Board
     cells = Array.new(width).map { Array.new(height) }
     cells.each_with_index do |h, i|
       h.each_with_index do |w, j|
-        cells[i][j] = rand(dead..live)
+        cells[i][j] = Cell.randomly_create
       end
     end
   end
@@ -64,7 +64,7 @@ class Board
       for j in x-1..x+1
         next if current?(i, j, y, x)
         next if outside?(i, j)
-        if live?(cells[i][j])
+        if cells[i][j].live?
           count += 1
         end
       end
@@ -78,29 +78,5 @@ class Board
 
   def outside?(y, x)
     y < 0 || y >= height || x < 0 || x >= width
-  end
-
-  def live
-    1
-  end
-
-  def dead
-    0
-  end
-
-  def live?(cell)
-    cell == live
-  end
-
-  def dead?(cell)
-    cell == dead
-  end
-
-  def live!(cell)
-    cell = live
-  end
-
-  def dead!(cell)
-    cell = dead
   end
 end
