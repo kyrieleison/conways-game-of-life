@@ -10,7 +10,7 @@ class Board
   def render
     cells.each_with_index do |h, i|
       h.each_with_index do |w, j|
-        if cells[i][j] == 1
+        if live?(cells[i][j])
           print "+"
         else
           print " "
@@ -25,7 +25,7 @@ class Board
     cells.each_with_index do |h, i|
       h.each_with_index do |w, j|
         count = alive_surrounding_cells_count(i, j)
-        if cells[i][j] == 1
+        if live?(cells[i][j])
           case count
           when 0..1
             next_cells[i][j] = 0
@@ -53,7 +53,7 @@ class Board
     cells = Array.new(width).map { Array.new(height) }
     cells.each_with_index do |h, i|
       h.each_with_index do |w, j|
-        cells[i][j] = rand(0..1)
+        cells[i][j] = rand(dead..live)
       end
     end
   end
@@ -62,13 +62,45 @@ class Board
     count = 0
     for i in y-1..y+1
       for j in x-1..x+1
-        next if i == y && j == x
-        next if i < 0 || i >= height || j < 0 || j >= width
-        if cells[i][j] == 1
+        next if current?(i, j, y, x)
+        next if outside?(i, j)
+        if live?(cells[i][j])
           count += 1
         end
       end
     end
     count
+  end
+
+  def current?(y, x, current_column, current_row)
+    y == current_column && x == current_row
+  end
+
+  def outside?(y, x)
+    y < 0 || y >= height || x < 0 || x >= width
+  end
+
+  def live
+    1
+  end
+
+  def dead
+    0
+  end
+
+  def live?(cell)
+    cell == live
+  end
+
+  def dead?(cell)
+    cell == dead
+  end
+
+  def live!(cell)
+    cell = live
+  end
+
+  def dead!(cell)
+    cell = dead
   end
 end
